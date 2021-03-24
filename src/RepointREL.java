@@ -11,7 +11,7 @@ public class RepointREL {
     static Map<Integer, Integer> mapMp7ToMp6;
 
     static final String relToTranslate = "safdll.rel";
-    static final String translatedRel = "safdll6.rel";
+    static final String translatedRel = "safdll7.rel";
 
     public static void main(String[] args) throws Exception {
         mapMp7ToMp6 = readTranslationsDocToMap();
@@ -41,13 +41,6 @@ public class RepointREL {
         byte[] translatedBytes = new byte[relBytes.length];
         ByteBuffer outputBuffer = ByteBuffer.wrap(translatedBytes);
 
-        while (inputRelBuffer.hasRemaining()) {
-            int nextInt = inputRelBuffer.getInt();
-            outputBuffer.putInt(nextInt);
-            if (nextInt == -2146826396)
-                break;
-
-        }
         while (inputRelBuffer.hasRemaining()) {
             int nextInt = inputRelBuffer.getInt() - 0x80000000;
 
