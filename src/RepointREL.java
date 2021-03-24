@@ -3,7 +3,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -16,7 +15,26 @@ public class RepointREL {
 
     public static void main(String[] args) throws Exception {
         mapMp7ToMp6 = readTranslationsDocToMap();
+        byte[] translatedBytes = translateFile();
+        writeFile(translatedBytes);
+    }
 
+    private static Map<Integer, Integer> readTranslationsDocToMap() throws IOException {
+        Map<Integer, Integer> map = new TreeMap<>();
+        for (String line : Files.readAllLines(translationsDoc)) {
+            if (line.contains("reference"))    //column headers
+                continue;
+            if (line.length() < 16)
+                break;
+
+            Integer mp6 = Integer.parseInt(line.substring(1, 8), 16);
+            Integer mp7 = Integer.parseInt(line.substring(10, 17), 16);
+            map.put(mp7, mp6);
+        }
+        return map;
+    }
+
+    private static byte[] translateFile() throws IOException {
         byte[] relBytes = Files.readAllBytes(Path.of(relToTranslate));
         ByteBuffer inputRelBuffer = ByteBuffer.wrap(relBytes);
 
@@ -40,26 +58,13 @@ public class RepointREL {
 //            System.out.printf("%08X\n", nextInt + 0x80000000);
             outputBuffer.putInt(nextInt + 0x80000000);
         }
+        return translatedBytes;
+    }
 
-//        System.out.println(Arrays.toString(translatedBytes));
+    private static void writeFile(byte[] translatedBytes) throws IOException {
         FileOutputStream newFileOutputStream = new FileOutputStream(translatedRel);
         newFileOutputStream.write(translatedBytes);
         newFileOutputStream.flush();
         newFileOutputStream.close();
-    }
-
-    private static Map<Integer, Integer> readTranslationsDocToMap() throws IOException {
-         Map<Integer, Integer> map = new TreeMap<>();
-         for (String line : Files.readAllLines(translationsDoc)) {
-             if (line.contains("reference"))    //column headers
-                 continue;
-             if (line.length() < 16)
-                 break;
-
-             Integer mp6 = Integer.parseInt(line.substring(1, 8), 16);
-             Integer mp7 = Integer.parseInt(line.substring(10, 17), 16);
-             map.put(mp7, mp6);
-         }
-         return map;
     }
 }
