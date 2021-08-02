@@ -1,0 +1,127 @@
+Replace Odd Card Out ➜ What Goes Up...
+28265ba8 00000001
+02265ba8 00000003
+e2000001 80008000
+
+Replace Pitifall ➜ Cog Jog
+28265ba8 00000036
+02265ba8 00000017
+e2000001 80008000
+
+Replace Trick or Tree ➜ Boo Off the Stage
+28265ba8 0000003d
+02265ba8 0000003b
+e2000001 80008000
+
+Replace Tricky Tires ➜ Cannonball Fun
+28265ba8 00000009
+02265ba8 0000000d
+e2000001 80008000
+
+
+write: 804d1c60
+read: 804ca2a8
+change r4 at 804ca2ac to change game index
+80291559 is var in MP7, line 804e629c to change (??)
+
+80011918
+
+804dca20 stores location of...
+804dca36 + (gameIndex * 124)
+
+80510ac0 memory of "UFOs" string from instructions in Freeze Frame
+80051884 function to read game instructions
+
+8022d583 offset 2 changes address that is used to go to Towering Tree whatever
+80256a92 in mp7 or so
+
+
+high byte
+mp6	mp7
+93	b0
+3b	4f
+c5	e1
+f8	10d
+f1	105
+19	24
+eb	fe
+35	48
+d4	ee
+bc	41
+2f	1d
+bc	3a
+bc	da
+	da
+
+8024c840 - start of lookup for these weird not address things
+
+f9
+d7
+3c
+
+
+m705 - 54 to d7 conversion
+
+Section header for each REL slot location (?) and size (bytes):
+80481120	a020
+8048b140	cle0
+80497320	9020
+804a0340	26820
+804c6b60	31c0
+804c9d20	340
+804ca060	40
+804ca0a0	9a60
+804d3b00	120
+804d3c20	61c0
+804d9de0	121c0
+804ebfa0	100
+804ec0a0	180
+804ebfa0	100
+804ec0a0	180
+804ec220	180
+804ec3a0	60
+804ec400	40
+804ec440	1b4ce0
+80761160	40
+807611a0	afffc0
+80773fe0	13c0
+81261180	113860
+Structure is size (4 bytes), something (1 byte, usually a5?), in use (1 byte, boolean style), previous area address (4 bytes), next area address (4 bytes)
+looping linked list kinda deal
+
+
+!!!!!!!!!!!!!
+
+
+Identify those weird memory-dependant but not address things (e.g. 00930001) by the address (usually lis + subi/addi) pointing at 80080728 (80085660 in mp7). Or maybe 8005b0b8 (the former passes down to here anyways) 
+compares upper byte against value in 8022e728 and then 8022e72c + offset. seems to only allow 14 searches in each bucket before moving on (trying to find a REL slot?)
+
+REL slot relevant addresses
+mp6:
+80080728 
+8005C4E4 ??
+8005B0B8 
+
+mp7:
+80060568
+8005F150
+
+
+can't figure out what to replace the weird memory-not-address things with.
+
+
+80014750 was the issue for test8dll as well as m705. Stack trace:
+
+80014750 [80014778]
+80014600 [80014630]
+80025a04 [80025a74]
+804ca24c [804ca6d8]
+8003b234 [8003b4c0]
+
+!!!!!!!!!!!!!!
+
+line 804ca2c4, if game index > 0x51 then it gets set to 0, increase this to increase number of possible games
+line 8000760 reading the .bins
+
+
+some functions around 80025d4c and after don't exactly match up. seems to be mostly checking that inputs are positive

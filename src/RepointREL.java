@@ -6,13 +6,13 @@ import java.nio.file.Path;
 import java.util.*;
 
 public class RepointREL {
-    static final Path translationsDoc = Path.of("MP69Equivalents.txt");
+    static final Path translationsDoc = Path.of("MP67Equivalents.txt");
     static Map<Integer, Integer> addressMap;
 
 //    private static final Map<BigInteger, BigInteger> instructionMap = new HashMap<>();
 
-    static final String relToTranslate = "root7/dll/actmanDLL.rel";
-    static final String translatedRel = "root7/dll/actmanDL7.rel";
+    static final String relToTranslate = "sequencedll.rel";
+    static final String translatedRel = "sequenced6c.rel";
 
     public static void main(String[] args) throws Exception {
         addressMap = readTranslationsDocToMap();
@@ -32,7 +32,7 @@ public class RepointREL {
 
             Integer mp6 = Integer.parseInt(line.substring(1, 8), 16);
             Integer mp7 = Integer.parseInt(line.substring(10, 17), 16);
-            map.put(mp7, mp6);
+            map.put(mp6, mp7);
         }
         return map;
     }
@@ -49,25 +49,35 @@ public class RepointREL {
     }
 
     private static void translateCode(ByteBuffer inputRelBuffer, ByteBuffer outputBuffer) {
-        while (inputRelBuffer.hasRemaining()) { //bytebuffer breaks if this is a do-while loop, dunno why, cba fixing
+        while (inputRelBuffer.hasRemaining()) {
             int nextInt = inputRelBuffer.getInt();
 
-            if (nextInt == 0x3c8000b0) {
-                int nextNextInt = inputRelBuffer.getInt();
-                if (nextNextInt == 0x38840006) {
-                    nextInt = 0x3c800093;
-                }
-                System.out.println("did the thing");
-                outputBuffer.putInt(nextInt);
-                outputBuffer.putInt(nextNextInt);
-                continue;
-            }
+//            if (replaceInstructionHardcoded(inputRelBuffer, outputBuffer, nextInt, 0x3c8000b0, 0x38840006, 0x3c800093)) {
+//                continue;
+//            }
+//
+//            if (replaceInstructionHardcoded(inputRelBuffer, outputBuffer, nextInt, 0x3860006a, 0x48000001, 0x38600045)) {
+//                continue;
+//            }
 
             outputBuffer.putInt(nextInt);
             if (nextInt == 0xcb00)
                 break;
-
         }
+    }
+
+    private static boolean replaceInstructionHardcoded(ByteBuffer inputRelBuffer, ByteBuffer outputBuffer, int nextInt, int line1ToBeReplacedWithNewLine, int line2, int newLine1) {
+        if (nextInt == line1ToBeReplacedWithNewLine) {
+            int nextNextInt = inputRelBuffer.getInt();
+            if (nextNextInt == line2) {
+                nextInt = newLine1;
+            }
+//            System.out.println("replaced");
+            outputBuffer.putInt(nextInt);
+            outputBuffer.putInt(nextNextInt);
+            return true;
+        }
+        return false;
     }
 
     private static byte[] translateAddressTable(ByteBuffer inputRelBuffer, ByteBuffer outputBuffer) {
@@ -88,14 +98,14 @@ public class RepointREL {
             outputBuffer.putInt(nextInt + 0x80000000);
         }
 
-        if (unknowns.size() == 0) {
-            System.out.println("Translation Successful");
-            return outputBuffer.array();
-        } else {
+        if (unknowns.size() > 0) {
             System.out.println("Unknown Addresses:");
             unknowns.forEach(u -> System.out.printf("%08X\n", u + 0x80000000));
             return null;
         }
+
+        System.out.println("Translation Successful");
+        return outputBuffer.array();
     }
 
     private static void writeFile(byte[] translatedBytes) throws IOException {
