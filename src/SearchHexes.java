@@ -4,13 +4,16 @@ import java.io.RandomAccessFile;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.file.Path;
 
 public class SearchHexes {
     public static void main(String[] args) throws IOException {
-        search("C:\\Users\\Max\\Desktop\\MarioParty69Java\\root6", new short[]{0x3c, 0x80, 0, 0xfff, 0x38, 0x84, 0, 6});
+//        search("C:\\Users\\Max\\Desktop\\MarioParty69Java\\root6", new short[]{0x80,0x8,7,0x28});
 //        System.out.println("\n");
-//        search("C:\\Users\\Max\\Desktop\\MarioParty69Java\\root6", new short[]{0x48, 0, 0, 1, 0x38, 0x60, 0x00});
+//        search("C:\\Users\\Max\\Desktop\\MarioParty69Java\\root6", new short[]{'i','t','e','m','h','o','o','k','_','R'});
+        search("C:\\Users\\Max\\Desktop\\MarioParty69Java\\root7", new short[]{0x80,0x04,0x2e,0xd8});
+//        System.out.println("\n");
+//        search("C:\\Users\\Max\\Desktop\\MarioParty69Java\\root7", new short[]{0x38,0x60,0,0x6a,0x48,0,0,1});
+//        search("C:\\Users\\Max\\Desktop\\MarioParty69Java\\root6", new short[]{'i','t','e','m','h','o','o','k'});
     }
 
     private static void search(String path, short[] search) throws IOException {
@@ -28,19 +31,21 @@ public class SearchHexes {
                     buffer.flip();
 
                     int streak = 0;
-                    byte value = -1;
+//                    short wildCard = 0xfff;
                     for (int i = 0; i < fileSize; i++) {
                         if (streak == search.length) {
                             System.out.println(f.getAbsolutePath());
-                            System.out.printf("%02X\n", value);
+                            System.out.println(i);
+//                            if (wildCard != 0xfff)
+//                                System.out.printf("%02X\n", wildCard);
                             streak = 0;
-//                            break;
+                            break;      //comment this out to get multiple hits per file
                         }
                         byte nextByte = buffer.get();
 
                         if (search[streak] == 0xfff) {  //wildcard
                             streak++;
-                            value = nextByte;
+//                            wildCard = nextByte;
                             continue;
                         }
 
